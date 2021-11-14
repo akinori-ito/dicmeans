@@ -43,7 +43,12 @@ dicmeans <- function(x,n,iter.max=20,algorithm="Lloyd") {
   }
   centers <- matrix(0,nrow=n,ncol=ncol(x))
   for (i in 1:n) {
-    centers[i,] <- colMeans(x[current_class==i,])
+    ind <- which(current_class==i)
+    if (length(ind) == 1) {
+      centers[i,] <- x[ind,]
+    } else {
+      centers[i,] <- colMeans(x[ind,])
+    }
   }
   list(
     cluster=current_class,
