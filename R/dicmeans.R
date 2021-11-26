@@ -30,6 +30,49 @@ fairest <- function(clss) {
   which.max(fairness)
 }
 
+kmeans2 <- function(x,centers=NULL,iter.max=10,ineq=0) {
+  if (ineq < 0 | 1 < ineq) {
+    stop("ineq should be between 0 and 1")
+  }
+  if (nrow(x) < 2) {
+    stop("x should be more than one point")
+  }
+  if (nrow(x) == 2) {
+    return(list(
+      cluster=c(1,2),
+      center=x
+    ))
+  }
+  if (is.null(centers)) {
+    g <- colMeans(x)
+    delta <- rnorm(ncol(x))
+    center <- rbind(g+delta,g-delta)
+  }
+  cluster <- rep(0,nrow(x))
+  d <- matrix(0,nrow=nrow(x),ncol=2)
+  for (k in 1:iter.max) {
+    for (i in 1:2) {
+      d[,i] <- apply(x,1,function(z){sum((z-center[i,])^2)})
+    }
+    d <- d/max(d)
+    d <- exp(d)
+    nd <- t(apply(d,1,function(x){x/sum(x)}))
+    #browser()
+    ind <- order(nd[,1],decreasing=TRUE)
+    n1 <- sum(nd[,1]>=0.5)
+    half <- nrow(x)/2
+    h <- floor(half*(1-ineq)+n1*ineq)
+    ncenter <- matrix(0,nrow=2,ncol=ncol(x))
+    ncenter[1,] <- colMeans(x[ind[1:h],])
+    ncenter[2,] <- colMeans(x[ind[(h+1):length(ind)],])
+    if (mean((center-ncenter)^2) == 0) break
+    center <- ncenter
+  }
+  cluster[ind[1:half]] <- 1
+  cluster[ind[(half+1):length(ind)]] <- 2
+  list(cluster=cluster,center=center)
+}
+
 #' The dichotomic k-means algorithm.
 #' @param x A matrix or data frame. Each row corresponds to the each data.
 #' @param n Number of clusters.
@@ -37,20 +80,21 @@ fairest <- function(clss) {
 #' @param algorithm Gigen to kmeans().
 #' @return The clustering result.
 #' @export
-dicmeans <- function(x,n,iter.max=20,algorithm="Hartigan-Wong") {
+dicmeans <- function(x,n,iter.final=0,
+                     iter.max=20,algorithm="Hartigan-Wong") {
   x.max <- x
   org_ind.max <- 1:nrow(x)
   current_cluster_num <- 2
   current_class <- rep(1,nrow(x))
   while (current_cluster_num <= n) {
-    clss <- list()
-    for (i in 1:3) {
-      clss[[i]] <- stats::kmeans(x.max,2,
-                           iter.max=iter.max,
-                           algorithm=algorithm)
-      
-    }
-    cls <- clss[[fairest(clss)]]
+    # clss <- list()
+    # for (i in 1:3) {
+    #   clss[[i]] <- stats::kmeans(x.max,2,
+    #                       iter.max=iter.max,
+    #                       algorithm=algorithm)
+    # }
+    # cls <- clss[[fairest(clss)]]
+    cls <- kmeans2(x.max,iter.max=iter.max)
     current_class[org_ind.max] <- cls$cluster+current_cluster_num-1
     current_class <- renumber(current_class)
     tbl <- base::table(current_class)
@@ -67,6 +111,10 @@ dicmeans <- function(x,n,iter.max=20,algorithm="Hartigan-Wong") {
     } else {
       centers[i,] <- colMeans(x[ind,])
     }
+  }
+  if (iter.final > 0) {
+    cls <- kmeans(x,centers,iter.max=iter.final,algorithm=algorithm)
+    return(cls)
   }
   list(
     cluster=current_class,
