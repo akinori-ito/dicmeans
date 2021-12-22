@@ -1,5 +1,5 @@
 #
-# Dichotomic k-means clustering algorithm
+# Succesive Binary Partition k-means clustering algorithm
 #
 # 2021/11/14 Akinori Ito
 #
@@ -73,14 +73,18 @@ kmeans2 <- function(x,centers=NULL,iter.max=10,ineq=0) {
   list(cluster=cluster,center=center)
 }
 
-#' The dichotomic k-means algorithm.
+#' The successive binary partition k-means algorithm.
 #' @param x A matrix or data frame. Each row corresponds to the each data.
 #' @param n Number of clusters.
-#' @param iter.max Given to kmeans().
+#' @param iter.max Number of maximum iteration in each split.
+#' @param iter.final Number of iteration at the final centroid refinement.
 #' @param algorithm Gigen to kmeans().
-#' @return The clustering result.
+#' @return List of the clustering result.
+#'   cluster: a vector indicating the cluster numbers of the samples.
+#'   centers: a matrix of the centroids
+#'   size: a vector of the cluster sizes
 #' @export
-dicmeans <- function(x,n,iter.final=0,
+sbp_kmeans <- function(x,n,iter.final=0,
                      iter.max=20,algorithm="Hartigan-Wong") {
   x.max <- x
   org_ind.max <- 1:nrow(x)

@@ -1,5 +1,5 @@
-Package: dicmeans
-Title: Dichotomic k-means algorithm
+Package: succesive-binary-partition-kmeans
+Title: Successive binary partition k-means algorithm
 Version: 1.0.0.9000
 Authors@R: 
     person(given = "Akinori",
@@ -7,9 +7,9 @@ Authors@R:
            role = c("aut", "cre"),
            email = "aito@spcom.ecei.tohoku.ac.jp",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: The dichotomic k-means algorithm. This algorithm makes the clusters by dividing the largest cluster successively.
+Description: The successive binary partition k-means algorithm. This algorithm makes the clusters by dividing the largest cluster successively.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
