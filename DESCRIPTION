@@ -1,4 +1,4 @@
-Package: succesive-binary-partition-kmeans
+Package: succesiveBinaryPartitionKmeans
 Title: Successive binary partition k-means algorithm
 Version: 1.0.0.9000
 Authors@R: 
