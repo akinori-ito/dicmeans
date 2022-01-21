@@ -50,17 +50,14 @@ kmeans2 <- function(x,centers=NULL,iter.max=10,ineq=0) {
   }
   cluster <- rep(0,nrow(x))
   d <- matrix(0,nrow=nrow(x),ncol=2)
+  half <- nrow(x)/2
   for (k in 1:iter.max) {
     for (i in 1:2) {
       d[,i] <- apply(x,1,function(z){sum((z-center[i,])^2)})
     }
-    d <- d/max(d)
-    d <- exp(d)
-    nd <- t(apply(d,1,function(x){x/sum(x)}))
-    #browser()
-    ind <- order(nd[,1],decreasing=TRUE)
-    n1 <- sum(nd[,1]>=0.5)
-    half <- nrow(x)/2
+    nd <- apply(d,1,function(x){x[1]/sum(x)})
+    ind <- order(nd,decreasing=TRUE)
+    n1 <- sum(nd>=0.5)
     h <- floor(half*(1-ineq)+n1*ineq)
     ncenter <- matrix(0,nrow=2,ncol=ncol(x))
     ncenter[1,] <- colMeans(x[ind[1:h],])
@@ -68,8 +65,8 @@ kmeans2 <- function(x,centers=NULL,iter.max=10,ineq=0) {
     if (mean((center-ncenter)^2) == 0) break
     center <- ncenter
   }
-  cluster[ind[1:half]] <- 1
-  cluster[ind[(half+1):length(ind)]] <- 2
+  cluster[ind[1:h]] <- 1
+  cluster[ind[(h+1):length(ind)]] <- 2
   list(cluster=cluster,center=center)
 }
 
